@@ -1,5 +1,6 @@
-# Caddyfile — update YOUR_DOMAIN before deploying to production
-YOUR_DOMAIN {
-    reverse_proxy /api/* backend:8000
-    reverse_proxy /* frontend:3000
+{$DOMAIN} {
+  reverse_proxy /api/* backend:8000
+  reverse_proxy /auth/* backend:8000
+  reverse_proxy /docs backend:8000
+  reverse_proxy * frontend:3000
 }

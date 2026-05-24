@@ -28,6 +28,18 @@ logs:
 prod-up:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
+# Stop production stack
+prod-down:
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+
+# Tail production logs
+prod-logs:
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+
+# Run migrations in production
+prod-migrate:
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml exec backend alembic upgrade head
+
 ## ── Utilities ───────────────────────────────────────────────────────────────
 
 # Open a bash shell in the backend container

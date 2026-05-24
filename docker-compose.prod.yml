@@ -1,34 +1,31 @@
 services:
-  # -----------------------------------------------------------------------
-  # Backend — production: no hot-reload, gunicorn-style workers
-  # -----------------------------------------------------------------------
+  postgres:
+    restart: always
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # No ports exposed externally — only internal network
+
   backend:
-    volumes: []           # remove dev volume mount
-    command: >
-      uvicorn app.main:app
-      --host 0.0.0.0
-      --port 8000
-      --workers 4
+    restart: always
+    # No volume mount (no hot reload)
+    # Run: uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2
+    # Set CORS to only allow the production domain
 
-  # -----------------------------------------------------------------------
-  # Frontend — production: build then serve
-  # -----------------------------------------------------------------------
   frontend:
-    volumes: []           # remove dev volume mount
+    restart: always
+    # Build the Next.js app and start in production mode
     command: sh -c "npm run build && npm start"
+    environment:
+      NODE_ENV: production
 
-  # -----------------------------------------------------------------------
-  # Caddy — reverse proxy with automatic HTTPS
-  # -----------------------------------------------------------------------
   caddy:
     image: caddy:2-alpine
-    container_name: eventinvite_caddy
-    restart: unless-stopped
+    restart: always
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
@@ -36,5 +33,6 @@ services:
       - frontend
 
 volumes:
+  pgdata:
   caddy_data:
   caddy_config:

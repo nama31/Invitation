@@ -270,14 +270,24 @@ EventInvite/
 
 ---
 
-## Production Deployment
+## Deploy in 5 Minutes (Production)
 
-1. Deploy the Next.js frontend to **Vercel** (connect GitHub repo, auto-deploys).
-2. Deploy the FastAPI backend to **Render** or **Railway**.
-3. Use **Supabase** or a managed PostgreSQL instance for the database.
-4. Set all environment variables in your hosting provider's dashboard.
-5. Update `NEXT_PUBLIC_API_URL` to the deployed backend URL.
-6. Change all default secrets (`JWT_SECRET`, DB passwords).
-7. Ensure the backend is served over HTTPS for secure cookie/JWT handling.
+We use a single-VPS deployment strategy with Docker Compose and Caddy for automatic HTTPS.
+
+1. Provision a VPS (Ubuntu 22.04, min 1GB RAM) and point your domain DNS A record to its IP.
+2. SSH into the server:
+   ```bash
+   ssh root@your_server_ip
+   ```
+3. Download the deployment script:
+   ```bash
+   curl -o deploy.sh https://raw.githubusercontent.com/nama31/Invitation/main/deploy.sh
+   ```
+4. Make it executable and run it with your domain name:
+   ```bash
+   chmod +x deploy.sh && ./deploy.sh yourdomain.com
+   ```
+5. Fill in `.env` when prompted by the script (set `DOMAIN`, `JWT_SECRET`, database passwords, etc).
+6. Visit `https://yourdomain.com` — your app is live!
 
 > **Note:** Since this is a single-event site, 90%+ of guests will access it from a smartphone. Prioritize mobile-first design throughout.
