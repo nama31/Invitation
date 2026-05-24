@@ -1,8 +1,7 @@
 const VENUE_NAME = "Ресторан «Vavilon»";
 const VENUE_ADDRESS = "Проспект Жибек-Жолу, 402";
-const MAPS_EMBED_URL =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2244.905!2d37.6173!3d55.7558!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNTXCsDQ1JzIwLjkiTiAzN8KwMzcnMDIuMyJF!5e0!3m2!1sru!2sru!4v1680000000000!5m2!1sru!2sru";
-const MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(VENUE_ADDRESS)}`;
+const TWOGIS_LINK =
+  "https://2gis.kg/bishkek/firm/70000001019362616/74.585289%2C42.883893?m=74.585902%2C42.879728%2F15.7";
 
 export default function MapSection() {
   return (
@@ -31,33 +30,39 @@ export default function MapSection() {
           <p className="font-sans text-sm text-[#7A6E60]">{VENUE_ADDRESS}</p>
         </div>
 
-        {/* Map iframe */}
-        <div className="rounded-2xl overflow-hidden shadow-lg border border-[#E0D8CC] aspect-video w-full">
-          <iframe
-            src={MAPS_EMBED_URL}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Карта проведения мероприятия"
-          />
-        </div>
-
-        {/* Open in maps button */}
-        <div className="text-center mt-6">
-          <a
-            href={MAPS_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 font-sans text-sm uppercase tracking-[0.2em] px-8 py-3 rounded-full border border-[#C4A35A] text-[#C4A35A] hover:bg-[#C4A35A] hover:text-white transition-all duration-300"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {/* Premium info card with direct 2GIS action button */}
+        <div className="bg-white rounded-2xl border border-[#E0D8CC] shadow-md p-8 text-center max-w-md mx-auto">
+          <div className="w-12 h-12 bg-[#2C2418]/5 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-[#C4A35A]"
+              aria-hidden="true"
+            >
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
               <circle cx="12" cy="10" r="3" />
             </svg>
-            Открыть в картах
+          </div>
+          <p className="font-serif italic text-lg text-[#2C2418] mb-2">
+            Ждем вас на нашем празднике!
+          </p>
+          <p className="font-sans text-xs text-[#7A6E60] mb-6">
+            Нажмите кнопку ниже, чтобы построить маршрут до ресторана в приложении или на сайте 2GIS.
+          </p>
+
+          <a
+            href={TWOGIS_LINK}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 w-full font-sans text-sm uppercase tracking-[0.2em] px-8 py-3.5 rounded-xl bg-[#C4A35A] text-white hover:bg-[#B39248] transition-all duration-300 shadow-sm"
+          >
+            Открыть в 2GIS
           </a>
         </div>
       </div>
