@@ -1,15 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.guest import Guest, GuestStatus
 from app.models.rsvp import RsvpResponse
+from app.models.table import Table
 from app.schemas.guest import GuestPublic
 from app.schemas.rsvp import RsvpPayload
 
 router = APIRouter()
+
+
+# ── Seating chart response schemas ────────────────────────────────────────────
+class SeatingGuest(BaseModel):
+    first_name: str
+    last_name: str
+
+
+class SeatingTable(BaseModel):
+    table_id: int
+    table_name: str
+    max_seats: int
+    guests: list[SeatingGuest]
 
 
 @router.get("/event", tags=["event"])
@@ -117,3 +133,34 @@ async def submit_rsvp(
     await db.refresh(guest)
 
     return guest
+
+
+@router.get("/seating", response_model=list[SeatingTable], tags=["seating"])
+async def get_seating_plan(db: AsyncSession = Depends(get_db)) -> list[SeatingTable]:
+    """
+    Return the public seating chart.
+    Each table includes only confirmed guests. Empty tables are included
+    with an empty guests list.
+    """
+    # Load all tables with their guests (selectinload for async safety)
+    stmt = (
+        select(Table)
+        .options(selectinload(Table.guests))
+        .order_by(Table.id)
+    )
+    result = await db.execute(stmt)
+    tables = result.scalars().all()
+
+    return [
+        SeatingTable(
+            table_id=t.id,
+            table_name=t.table_name,
+            max_seats=t.max_seats,
+            guests=[
+                SeatingGuest(first_name=g.first_name, last_name=g.last_name)
+                for g in t.guests
+                if g.status == GuestStatus.confirmed
+            ],
+        )
+        for t in tables
+    ]

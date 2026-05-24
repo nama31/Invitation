@@ -22,9 +22,9 @@ function Spinner() {
 
 function StatusBadge({ status }: { status: Guest["status"] }) {
   const map: Record<Guest["status"], { label: string; cls: string }> = {
-    pending:   { label: "Ожидает",    cls: "bg-amber-100 text-amber-700" },
-    confirmed: { label: "Придёт",     cls: "bg-emerald-100 text-emerald-700" },
-    declined:  { label: "Не придёт", cls: "bg-rose-100 text-rose-700" },
+    pending: { label: "Ожидает", cls: "bg-amber-100 text-amber-700" },
+    confirmed: { label: "Придёт", cls: "bg-emerald-100 text-emerald-700" },
+    declined: { label: "Не придёт", cls: "bg-rose-100 text-rose-700" },
   };
   const { label, cls } = map[status];
   return (
@@ -111,10 +111,10 @@ export default function RsvpSection() {
       status,
       ...(status === "confirmed"
         ? {
-            dietary_preferences: dietary.trim() || null,
-            alcohol_preference: alcohol === "none" ? null : alcohol,
-            needs_transport: transport,
-          }
+          dietary_preferences: dietary.trim() || null,
+          alcohol_preference: alcohol === "none" ? null : alcohol,
+          needs_transport: transport,
+        }
         : {}),
     };
     try {
@@ -249,14 +249,14 @@ export default function RsvpSection() {
                   onClick={() => handleIntent("confirmed")}
                   className="flex-1 font-sans text-sm uppercase tracking-widest py-3 px-6 rounded-xl bg-[#C4A35A] text-white hover:bg-[#B39248] transition-all duration-200 shadow-sm"
                 >
-                  ✅ Буду на празднике
+                  Буду на празднике
                 </button>
                 <button
                   onClick={() => handleIntent("declined")}
                   disabled={submitting}
                   className="flex-1 font-sans text-sm uppercase tracking-widest py-3 px-6 rounded-xl border border-[#E0D8CC] text-[#7A6E60] hover:border-rose-300 hover:text-rose-500 transition-all duration-200 disabled:opacity-50"
                 >
-                  {submitting ? <Spinner /> : "❌ Не смогу прийти"}
+                  {submitting ? <Spinner /> : " Не смогу прийти"}
                 </button>
               </div>
 
@@ -271,78 +271,37 @@ export default function RsvpSection() {
 
           {/* ── STEP 3: Survey ── */}
           {step === "survey" && (
-            <div>
-              <p className="font-sans text-xs uppercase tracking-[0.2em] text-[#C4A35A] mb-2 text-center">
-                Ещё пару вопросов
+            <div className="text-center py-4">
+              <p className="font-sans text-xs uppercase tracking-[0.2em] text-[#C4A35A] mb-2">
+                Последний шаг
               </p>
-              <h3 className="font-serif italic text-2xl sm:text-3xl text-[#2C2418] mb-6 text-center">
-                Расскажите о себе
+              <h3 className="font-serif italic text-2xl sm:text-3xl text-[#2C2418] mb-4">
+                Подтверждение участия
               </h3>
-
-              <div className="space-y-5">
-                {/* Dietary */}
-                <div>
-                  <label htmlFor="dietary" className="block font-sans text-sm text-[#7A6E60] mb-1.5">
-                    Диетические предпочтения
-                  </label>
-                  <input
-                    id="dietary"
-                    type="text"
-                    value={dietary}
-                    onChange={(e) => setDietary(e.target.value)}
-                    placeholder="Вегетарианец, аллергия на орехи…"
-                    className="w-full font-sans text-sm border border-[#E0D8CC] rounded-xl px-4 py-3 bg-[#FAF7F2] text-[#2C2418] placeholder:text-[#C0B8B0] focus:outline-none focus:ring-2 focus:ring-[#C4A35A]/40 focus:border-[#C4A35A] transition"
-                  />
-                </div>
-
-                {/* Alcohol */}
-                <div>
-                  <label htmlFor="alcohol" className="block font-sans text-sm text-[#7A6E60] mb-1.5">
-                    Предпочтения по напиткам
-                  </label>
-                  <select
-                    id="alcohol"
-                    value={alcohol}
-                    onChange={(e) => setAlcohol(e.target.value as typeof alcohol)}
-                    className="w-full font-sans text-sm border border-[#E0D8CC] rounded-xl px-4 py-3 bg-[#FAF7F2] text-[#2C2418] focus:outline-none focus:ring-2 focus:ring-[#C4A35A]/40 focus:border-[#C4A35A] transition appearance-none cursor-pointer"
-                  >
-                    <option value="none">Без алкоголя</option>
-                    <option value="wine">Вино</option>
-                    <option value="beer">Пиво</option>
-                    <option value="cocktails">Коктейли</option>
-                  </select>
-                </div>
-
-                {/* Transport */}
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      id="transport"
-                      checked={transport}
-                      onChange={(e) => setTransport(e.target.checked)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-[#E0D8CC] rounded-full peer-checked:bg-[#C4A35A] transition-colors duration-200" />
-                    <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 peer-checked:translate-x-5" />
-                  </div>
-                  <span className="font-sans text-sm text-[#2C2418] group-hover:text-[#C4A35A] transition">
-                    Мне нужен трансфер
-                  </span>
-                </label>
-              </div>
+              <p className="font-sans text-sm text-[#7A6E60] mb-8 leading-relaxed">
+                Вы подтверждаете, что сможете присутствовать на нашем празднике? Мы с нетерпением ждем встречи с вами!
+              </p>
 
               {submitError && (
-                <p className="font-sans text-sm text-rose-600 mt-4">{submitError}</p>
+                <p className="font-sans text-sm text-rose-600 mb-4">{submitError}</p>
               )}
 
-              <button
-                onClick={() => handleSubmit("confirmed")}
-                disabled={submitting}
-                className="mt-7 w-full flex items-center justify-center gap-2 font-sans text-sm uppercase tracking-widest py-3.5 px-6 rounded-xl bg-[#C4A35A] text-white hover:bg-[#B39248] transition-all duration-200 shadow-sm disabled:opacity-60"
-              >
-                {submitting ? <Spinner /> : "Подтвердить участие"}
-              </button>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => handleSubmit("confirmed")}
+                  disabled={submitting}
+                  className="w-full flex items-center justify-center gap-2 font-sans text-sm uppercase tracking-widest py-3.5 px-6 rounded-xl bg-[#C4A35A] text-white hover:bg-[#B39248] transition-all duration-200 shadow-sm disabled:opacity-60 cursor-pointer"
+                >
+                  {submitting ? <Spinner /> : "Подтвердить участие"}
+                </button>
+                <button
+                  onClick={() => setStep("confirm")}
+                  disabled={submitting}
+                  className="w-full font-sans text-xs text-[#7A6E60] underline underline-offset-2 hover:text-[#C4A35A] transition py-2"
+                >
+                  Назад
+                </button>
+              </div>
             </div>
           )}
 

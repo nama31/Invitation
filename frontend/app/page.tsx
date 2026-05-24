@@ -1,6 +1,7 @@
 import { getEventInfo } from "@/lib/guests";
 import Hero from "@/components/Hero";
 import RsvpSection from "@/components/RsvpSection";
+import SeatingChart from "@/components/SeatingChart";
 import Schedule from "@/components/Schedule";
 import DressCode from "@/components/DressCode";
 import MapSection from "@/components/MapSection";
@@ -17,6 +18,7 @@ export default async function HomePage() {
       <main>
         <Hero info={info} />
         <RsvpSection />
+        <SeatingChart />
         <Schedule />
         <DressCode />
         <MapSection />

@@ -76,3 +76,16 @@ export const api = {
   delete: <T>(path: string, init?: RequestInit) =>
     apiFetch<T>(path, { method: "DELETE", ...init }),
 };
+
+// ── Seating chart types & fetch ───────────────────────────────────────────────
+export type SeatingGuest = { first_name: string; last_name: string };
+export type SeatingTable = {
+  table_id: number;
+  table_name: string;
+  max_seats: number;
+  guests: SeatingGuest[];
+};
+
+export async function getSeatingPlan(): Promise<SeatingTable[]> {
+  return apiFetch<SeatingTable[]>("/api/seating");
+}

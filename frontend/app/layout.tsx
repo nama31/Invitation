@@ -32,6 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
+      suppressHydrationWarning
       lang="ru"
       className={`${cormorant.variable} ${inter.variable} scroll-smooth`}
     >
