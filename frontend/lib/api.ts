@@ -1,5 +1,22 @@
-const NEXT_PUBLIC_API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+/**
+ * Resolves the correct API base URL depending on execution context.
+ * - Server Components / SSR run inside the Docker network → use the internal
+ *   service name `backend:8000` (via INTERNAL_API_URL env var).
+ * - Client Components run in the browser → use the public URL
+ *   (NEXT_PUBLIC_API_URL, which defaults to http://localhost:8000).
+ */
+function getBaseUrl(): string {
+  if (typeof window === "undefined") {
+    // Server-side: use internal Docker service URL if provided
+    return (
+      process.env.INTERNAL_API_URL ??
+      process.env.NEXT_PUBLIC_API_URL ??
+      "http://backend:8000"
+    );
+  }
+  // Client-side: always use public URL
+  return process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+}
 
 /**
  * Generic fetch wrapper that prepends the API base URL.
@@ -9,7 +26,7 @@ export async function apiFetch<T = unknown>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const url = `${NEXT_PUBLIC_API_URL}${path}`;
+  const url = `${getBaseUrl()}${path}`;
 
   const res = await fetch(url, {
     headers: {
