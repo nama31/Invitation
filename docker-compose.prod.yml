@@ -1,0 +1,40 @@
+services:
+  # -----------------------------------------------------------------------
+  # Backend — production: no hot-reload, gunicorn-style workers
+  # -----------------------------------------------------------------------
+  backend:
+    volumes: []           # remove dev volume mount
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --workers 4
+
+  # -----------------------------------------------------------------------
+  # Frontend — production: build then serve
+  # -----------------------------------------------------------------------
+  frontend:
+    volumes: []           # remove dev volume mount
+    command: sh -c "npm run build && npm start"
+
+  # -----------------------------------------------------------------------
+  # Caddy — reverse proxy with automatic HTTPS
+  # -----------------------------------------------------------------------
+  caddy:
+    image: caddy:2-alpine
+    container_name: eventinvite_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  caddy_data:
+  caddy_config:
