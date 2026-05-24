@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # Event details
     EVENT_NAME: str = "Our Event"
     EVENT_DATE: str = "2025-09-14T18:00:00"
+    VENUE: str = "TBD"
 
     # Admin seed credentials
     ADMIN_EMAIL: str = "admin@event.com"

@@ -26,3 +26,13 @@ class GuestRead(GuestBase):
     id: int
 
     model_config = {"from_attributes": True}
+
+
+class GuestPublic(BaseModel):
+    id: int
+    first_name: str
+    last_name: str
+    status: GuestStatus
+
+    model_config = {"from_attributes": True}
+
