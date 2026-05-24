@@ -35,4 +35,3 @@ class GuestPublic(BaseModel):
     status: GuestStatus
 
     model_config = {"from_attributes": True}
-

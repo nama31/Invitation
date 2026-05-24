@@ -28,4 +28,9 @@ class Guest(Base):
 
     # Relationships
     table = relationship("Table", back_populates="guests")
-    rsvp_response = relationship("RsvpResponse", back_populates="guest", uselist=False)
+    rsvp_response = relationship(
+        "RsvpResponse",
+        back_populates="guest",
+        uselist=False,
+        cascade="all, delete-orphan",
+    )
