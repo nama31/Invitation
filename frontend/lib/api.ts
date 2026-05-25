@@ -89,3 +89,44 @@ export type SeatingTable = {
 export async function getSeatingPlan(): Promise<SeatingTable[]> {
   return apiFetch<SeatingTable[]>("/api/seating");
 }
+
+// ── Photo types & API functions ───────────────────────────────────────────────
+export type PhotoRead = {
+  id: number;
+  public_url: string;
+  uploader_name: string | null;
+  uploaded_at: string;
+};
+
+export type PresignResponse = {
+  photo_id: string;
+  upload_url: string;
+  storage_key: string;
+};
+
+export async function presignPhoto(
+  mime_type: string,
+  file_size_bytes: number
+): Promise<PresignResponse> {
+  return apiFetch<PresignResponse>("/api/photos/presign", {
+    method: "POST",
+    body: JSON.stringify({ mime_type, file_size_bytes }),
+  });
+}
+
+export async function confirmPhoto(payload: {
+  storage_key: string;
+  uploader_name?: string;
+  original_filename: string;
+  file_size_bytes: number;
+  mime_type: string;
+}): Promise<PhotoRead> {
+  return apiFetch<PhotoRead>("/api/photos/confirm", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function getPhotos(): Promise<PhotoRead[]> {
+  return apiFetch<PhotoRead[]>("/api/photos");
+}

@@ -5,8 +5,12 @@ from sqlalchemy.orm import selectinload
 
 from app.core.auth import get_current_admin
 from app.core.database import get_db
+from app.core.ws_manager import manager
 from app.models.guest import Guest, GuestStatus
 from app.models.table import Table
+from app.models.photo import Photo
+from app.core.r2 import delete_object
+from app.schemas.photo import PhotoRead
 from app.schemas.admin import (
     AdminStats,
     GuestAdminCreate,
@@ -177,6 +181,9 @@ async def assign_guest_to_table(
         guest.table_id = payload.table_id
         await db.commit()
 
+        # Notify all connected seating-chart browsers
+        await manager.broadcast({"type": "seating_updated"})
+
     await db.refresh(guest)
     return guest
 
@@ -302,4 +309,85 @@ async def delete_admin_table(
         )
 
     await db.delete(table)
+    await db.commit()
+
+
+# ---------------------------------------------------------------------------
+# Photos Moderation
+# ---------------------------------------------------------------------------
+
+@router.get("/photos", response_model=list[PhotoRead], tags=["admin-photos"])
+async def list_admin_photos(
+    current_admin: str = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> list[Photo]:
+    """
+    List all photos, ordered by most recent first.
+    """
+    stmt = select(Photo).order_by(Photo.uploaded_at.desc())
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+@router.patch("/photos/{id}/hide", response_model=PhotoRead, tags=["admin-photos"])
+async def hide_admin_photo(
+    id: int,
+    current_admin: str = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Photo:
+    """
+    Hide a photo from the public gallery.
+    """
+    stmt = select(Photo).where(Photo.id == id)
+    photo = (await db.execute(stmt)).scalar_one_or_none()
+    
+    if not photo:
+        raise HTTPException(status_code=404, detail=f"Photo with ID {id} not found")
+        
+    photo.is_approved = False
+    await db.commit()
+    await db.refresh(photo)
+    return photo
+
+@router.patch("/photos/{id}/show", response_model=PhotoRead, tags=["admin-photos"])
+async def show_admin_photo(
+    id: int,
+    current_admin: str = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> Photo:
+    """
+    Show a hidden photo in the public gallery.
+    """
+    stmt = select(Photo).where(Photo.id == id)
+    photo = (await db.execute(stmt)).scalar_one_or_none()
+    
+    if not photo:
+        raise HTTPException(status_code=404, detail=f"Photo with ID {id} not found")
+        
+    photo.is_approved = True
+    await db.commit()
+    await db.refresh(photo)
+    return photo
+
+@router.delete("/photos/{id}", status_code=status.HTTP_204_NO_CONTENT, tags=["admin-photos"])
+async def delete_admin_photo(
+    id: int,
+    current_admin: str = Depends(get_current_admin),
+    db: AsyncSession = Depends(get_db),
+) -> None:
+    """
+    Permanently delete a photo from DB and R2.
+    """
+    stmt = select(Photo).where(Photo.id == id)
+    photo = (await db.execute(stmt)).scalar_one_or_none()
+    
+    if not photo:
+        raise HTTPException(status_code=404, detail=f"Photo with ID {id} not found")
+    
+    try:
+        delete_object(photo.storage_key)
+    except Exception as e:
+        import logging
+        logging.error(f"Failed to delete {photo.storage_key} from R2: {e}")
+        
+    await db.delete(photo)
     await db.commit()

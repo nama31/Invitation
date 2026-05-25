@@ -25,5 +25,12 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: str = "admin@event.com"
     ADMIN_PASSWORD: str = "change_me"
 
+    # Cloudflare R2  (values must be set in .env)
+    r2_account_id: str = ""
+    r2_access_key_id: str = ""
+    r2_secret_access_key: str = ""
+    r2_bucket_name: str = ""
+    r2_public_url: str = ""
+
 
 settings = Settings()

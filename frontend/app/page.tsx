@@ -2,12 +2,14 @@ import { getEventInfo } from "@/lib/guests";
 import Hero from "@/components/Hero";
 import RsvpSection from "@/components/RsvpSection";
 import SeatingChart from "@/components/SeatingChart";
+import PhotoGallery from "@/components/PhotoGallery";
 import Schedule from "@/components/Schedule";
-import DressCode from "@/components/DressCode";
 import MapSection from "@/components/MapSection";
 import NavBar from "@/components/NavBar";
 
-export const revalidate = 3600; // Re-fetch event info at most every hour
+// force-dynamic: skip static pre-rendering at build time.
+// The page is rendered on the server at request time, when the backend is reachable.
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const info = await getEventInfo();
@@ -19,8 +21,8 @@ export default async function HomePage() {
         <Hero info={info} />
         <RsvpSection />
         <SeatingChart />
+        <PhotoGallery />
         <Schedule />
-        <DressCode />
         <MapSection />
       </main>
 

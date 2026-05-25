@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, WebSocket, WebSocketDisconnect, status
 from pydantic import BaseModel
 from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,11 +6,16 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.ws_manager import manager
 from app.models.guest import Guest, GuestStatus
 from app.models.rsvp import RsvpResponse
 from app.models.table import Table
+from app.models.photo import Photo
 from app.schemas.guest import GuestPublic
 from app.schemas.rsvp import RsvpPayload
+from app.schemas.photo import PresignRequest, PresignResponse, ConfirmUpload, PhotoRead
+from app.core.r2 import generate_presigned_upload_url
+import uuid
 
 router = APIRouter()
 
@@ -132,6 +137,9 @@ async def submit_rsvp(
     await db.commit()
     await db.refresh(guest)
 
+    # Notify all connected seating-chart browsers
+    await manager.broadcast({"type": "seating_updated"})
+
     return guest
 
 
@@ -164,3 +172,90 @@ async def get_seating_plan(db: AsyncSession = Depends(get_db)) -> list[SeatingTa
         )
         for t in tables
     ]
+
+
+# ── Photos API ────────────────────────────────────────────────────────────────
+
+ALLOWED_MIME_TYPES = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/heic": "heic"}
+MAX_FILE_SIZE = 20_971_520  # 20MB
+
+@router.post("/photos/presign", response_model=PresignResponse, tags=["photos"])
+async def presign_photo(payload: PresignRequest) -> PresignResponse:
+    if payload.mime_type not in ALLOWED_MIME_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid mime type")
+    if payload.file_size_bytes > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File too large")
+
+    extension = ALLOWED_MIME_TYPES[payload.mime_type]
+    photo_id = str(uuid.uuid4())
+    storage_key = f"photos/{photo_id}.{extension}"
+    
+    upload_url = generate_presigned_upload_url(storage_key, payload.mime_type)
+    
+    return PresignResponse(
+        photo_id=photo_id,
+        upload_url=upload_url,
+        storage_key=storage_key
+    )
+
+@router.post("/photos/confirm", response_model=PhotoRead, tags=["photos"])
+async def confirm_photo(
+    payload: ConfirmUpload,
+    db: AsyncSession = Depends(get_db)
+) -> Photo:
+    if not payload.storage_key.startswith("photos/"):
+        raise HTTPException(status_code=400, detail="Invalid storage key")
+
+    photo = Photo(
+        storage_key=payload.storage_key,
+        public_url=f"{settings.r2_public_url}/{payload.storage_key}",
+        uploader_name=payload.uploader_name,
+        original_filename=payload.original_filename,
+        file_size_bytes=payload.file_size_bytes,
+        mime_type=payload.mime_type,
+        is_approved=True
+    )
+    db.add(photo)
+    await db.commit()
+    await db.refresh(photo)
+
+    await manager.broadcast({"type": "photo_added"})
+    
+    return photo
+
+@router.get("/photos", response_model=list[PhotoRead], tags=["photos"])
+async def get_photos(db: AsyncSession = Depends(get_db)) -> list[Photo]:
+    stmt = select(Photo).where(Photo.is_approved == True).order_by(Photo.uploaded_at.desc())
+    result = await db.execute(stmt)
+    return list(result.scalars().all())
+
+
+# ── WebSocket endpoint ────────────────────────────────────────────────────────
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket) -> None:
+    """
+    Persistent WebSocket connection for the public seating chart.
+    Clients connect here and receive a ``{"type": "seating_updated"}`` message
+    whenever the seating plan changes (RSVP confirmed or table assignment).
+    The client is responsible for re-fetching /api/seating on its own.
+    """
+    await manager.connect(websocket)
+    try:
+        # Keep the connection open; we only push — never pull.
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception:
+        manager.disconnect(websocket)
+
+@router.websocket("/ws/photos")
+async def photos_websocket(websocket: WebSocket) -> None:
+    await manager.connect(websocket)
+    try:
+        while True:
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+    except Exception:
+        manager.disconnect(websocket)

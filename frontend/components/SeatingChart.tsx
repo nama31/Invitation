@@ -39,6 +39,58 @@ export default function SeatingChart() {
       .finally(() => setLoading(false));
   }, []);
 
+  // ── Live WebSocket updates ─────────────────────────────────────────────────
+  useEffect(() => {
+    // Derive the WS URL from the public API URL:
+    // "http://localhost:8000" → "ws://localhost:8000/api/ws"
+    // "https://api.example.com" → "wss://api.example.com/api/ws"
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+    const wsUrl = apiUrl.replace(/^http/, "ws") + "/api/ws";
+
+    let ws: WebSocket | null = null;
+    let retryTimeout: ReturnType<typeof setTimeout> | null = null;
+    let retryDelay = 1_000; // start at 1 s, cap at 30 s
+    let destroyed = false;
+
+    function connect() {
+      if (destroyed) return;
+      ws = new WebSocket(wsUrl);
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data as string) as { type: string };
+          if (msg.type === "seating_updated") {
+            // Re-fetch without resetting the search query
+            getSeatingPlan().then(setTables).catch(() => { /* keep stale data */ });
+          }
+        } catch {
+          // Ignore non-JSON frames
+        }
+      };
+
+      ws.onclose = () => {
+        if (destroyed) return;
+        // Exponential back-off reconnect (cap at 30 s)
+        retryTimeout = setTimeout(() => {
+          retryDelay = Math.min(retryDelay * 2, 30_000);
+          connect();
+        }, retryDelay);
+      };
+
+      ws.onerror = () => {
+        ws?.close(); // triggers onclose → reconnect
+      };
+    }
+
+    connect();
+
+    return () => {
+      destroyed = true;
+      if (retryTimeout) clearTimeout(retryTimeout);
+      ws?.close();
+    };
+  }, []);
+
   // Scroll to first matching table when query is long enough
   useEffect(() => {
     if (query.trim().length < 2) return;
@@ -90,7 +142,7 @@ export default function SeatingChart() {
   return (
     <section
       id="seating"
-      className="py-24 px-6 bg-gradient-to-b from-[#F2EBE0] to-[#FAF7F2]"
+      className="py-24 px-6 bg-[#FAF7F2]"
     >
       <div className="max-w-4xl mx-auto">
 

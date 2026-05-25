@@ -120,3 +120,43 @@ export async function deleteTable(token: string, id: number): Promise<void> {
     method: "DELETE",
   });
 }
+
+// ── Photos ────────────────────────────────────────────────────────────────────
+export type AdminPhotoRead = {
+  id: number;
+  public_url: string;
+  uploader_name: string | null;
+  original_filename: string;
+  file_size_bytes: number;
+  mime_type: string;
+  is_approved: boolean;
+  uploaded_at: string;
+};
+
+export async function getAdminPhotos(token: string): Promise<AdminPhotoRead[]> {
+  return adminFetch<AdminPhotoRead[]>("/api/admin/photos", token);
+}
+
+export async function hidePhoto(
+  token: string,
+  id: number
+): Promise<AdminPhotoRead> {
+  return adminFetch<AdminPhotoRead>(`/api/admin/photos/${id}/hide`, token, {
+    method: "PATCH",
+  });
+}
+
+export async function showPhoto(
+  token: string,
+  id: number
+): Promise<AdminPhotoRead> {
+  return adminFetch<AdminPhotoRead>(`/api/admin/photos/${id}/show`, token, {
+    method: "PATCH",
+  });
+}
+
+export async function deletePhoto(token: string, id: number): Promise<void> {
+  await adminFetch<void>(`/api/admin/photos/${id}`, token, {
+    method: "DELETE",
+  });
+}

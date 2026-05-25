@@ -7,8 +7,8 @@ const NAV_LINKS = [
   { href: "#hero",      label: "Главная" },
   { href: "#rsvp",      label: "RSVP" },
   { href: "#seating",   label: "Рассадка" },
+  { href: "#photos",    label: "Фото" },
   { href: "#schedule",  label: "Программа" },
-  { href: "#dresscode", label: "Дресс-код" },
   { href: "#map",       label: "Место" },
 ];
 

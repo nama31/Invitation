@@ -147,8 +147,7 @@ export default function RsvpSection() {
   return (
     <section
       id="rsvp"
-      className="py-24 px-6"
-      style={{ background: "linear-gradient(180deg, #FAF7F2 0%, #F2EBE0 100%)" }}
+      className="py-24 px-6 bg-[#FAF7F2]"
     >
       <div className="max-w-lg mx-auto">
         {/* Heading */}
