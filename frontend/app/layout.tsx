@@ -16,10 +16,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Приглашение на свадьбу",
+  title: "Приглашение на Той",
   description: "Мы приглашаем вас разделить с нами этот особенный день.",
   openGraph: {
-    title: "Приглашение на свадьбу",
+    title: "Приглашение на Той",
     description: "Мы приглашаем вас разделить с нами этот особенный день.",
     type: "website",
   },

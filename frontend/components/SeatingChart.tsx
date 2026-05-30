@@ -113,16 +113,16 @@ export default function SeatingChart() {
   const q = query.trim().toLowerCase();
   const hasQuery = q.length > 0;
 
-  const visibleTables = tables.filter(
-    (t) =>
-      !hasQuery ||
-      t.guests.some(
-        (g) =>
-          g.first_name.toLowerCase().includes(q) ||
-          g.last_name.toLowerCase().includes(q) ||
-          `${g.first_name} ${g.last_name}`.toLowerCase().includes(q)
+  const visibleTables = hasQuery
+    ? tables.filter((t) =>
+        t.guests.some(
+          (g) =>
+            g.first_name.toLowerCase().includes(q) ||
+            g.last_name.toLowerCase().includes(q) ||
+            `${g.first_name} ${g.last_name}`.toLowerCase().includes(q)
+        )
       )
-  );
+    : [];
 
   const allEmpty =
     !loading && !error && tables.length > 0 && tables.every((t) => t.guests.length === 0);
@@ -217,7 +217,7 @@ export default function SeatingChart() {
         )}
 
         {/* Skeleton loading grid */}
-        {loading && (
+        {loading && hasQuery && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3, 4].map((i) => (
               <SkeletonCard key={i} />

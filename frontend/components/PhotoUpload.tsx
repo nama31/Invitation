@@ -214,7 +214,7 @@ export default function PhotoUpload({ isOpen, onClose, onUploaded }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-[#F2EBE0] flex-shrink-0">
           <h2 className="font-serif italic text-xl text-[#2C2418]">
-            Upload your photos 📸
+            Загрузите ваши фото 📸
           </h2>
           <button
             ref={firstFocusRef}
@@ -233,7 +233,7 @@ export default function PhotoUpload({ isOpen, onClose, onUploaded }: Props) {
           {/* Name input */}
           <input
             type="text"
-            placeholder="Your name (optional)"
+            placeholder="Ваше имя (необязательно)"
             value={uploaderName}
             onChange={(e) => setUploaderName(e.target.value)}
             className="w-full font-sans text-sm border border-[#E0D8CC] rounded-xl px-4 py-2.5 text-[#2C2418] placeholder:text-[#C0B8B0] focus:outline-none focus:ring-2 focus:ring-[#C4A35A]/30 focus:border-[#C4A35A] transition"
@@ -247,10 +247,10 @@ export default function PhotoUpload({ isOpen, onClose, onUploaded }: Props) {
             className="border-2 border-dashed border-[#E0D8CC] rounded-xl p-8 text-center cursor-pointer hover:border-[#C4A35A] hover:bg-[#FAF7F2] transition"
           >
             <p className="font-sans text-sm text-[#7A6E60]">
-              Drop photos here or <span className="text-[#C4A35A] font-medium">tap to select</span>
+              Перетащите фото сюда или <span className="text-[#C4A35A] font-medium">нажмите для выбора</span>
             </p>
             <p className="font-sans text-xs text-[#C0B8B0] mt-1">
-              JPEG · PNG · WebP · HEIC · max 20 MB each
+              JPEG · PNG · WebP · HEIC · макс. 20 МБ файл
             </p>
           </div>
           <input
@@ -336,7 +336,7 @@ export default function PhotoUpload({ isOpen, onClose, onUploaded }: Props) {
               onClick={onClose}
               className="flex-1 bg-[#2C2418] text-white font-sans text-sm py-3 rounded-xl hover:bg-[#3D3020] transition"
             >
-              Done
+              Готово
             </button>
           ) : (
             <button
@@ -344,7 +344,7 @@ export default function PhotoUpload({ isOpen, onClose, onUploaded }: Props) {
               disabled={!hasPending || isUploading}
               className="flex-1 bg-[#C4A35A] text-white font-sans text-sm py-3 rounded-xl hover:bg-[#B8934A] transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isUploading ? "Uploading…" : "Upload all"}
+              {isUploading ? "Загрузка…" : "Загрузить все"}
             </button>
           )}
         </div>

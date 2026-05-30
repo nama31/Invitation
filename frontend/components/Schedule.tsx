@@ -1,9 +1,8 @@
 export default function Schedule() {
   const events = [
-    { time: "18:00", title: "Сбор гостей", icon: "🌹" },
-    { time: "18:30", title: "Церемония", icon: "💍" },
-    { time: "19:30", title: "Коктейльный час", icon: "🥂" },
-    { time: "20:30", title: "Ужин и праздник", icon: "🎶" },
+    { time: "16:00", title: "Сбор гостей", icon: "✨" },
+    { time: "16:30", title: "Начало Тоя", icon: "🪩" },
+    { time: "23:00", title: "Окончание вечера", icon: "🍾" },
   ];
 
   return (
