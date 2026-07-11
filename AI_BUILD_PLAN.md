@@ -292,7 +292,7 @@ DELETE /api/admin/tables/{id}         → only allow if table has 0 guests assig
 ### 🤖 AI Prompt — Phase 3
 
 ```
-Backend phases 1 and 2 are complete. Now build the public guest site in frontend/app/page.tsx and its components. The design must be mobile-first and elegant — this is a wedding/event invitation, so it should feel premium, not like a dashboard.
+Backend phases 1 and 2 are complete. Now build the public guest site in frontend/app/page.tsx and its components. The design must be mobile-first and elegant — this is a wedding/event invitation in russian language, so it should feel premium, not like a dashboard.
 
 ## Pages and components to build
 
